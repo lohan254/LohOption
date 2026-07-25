@@ -1,24 +1,51 @@
-function login(){
+// Firebase imports
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getAuth,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-    let email = document.getElementById("email").value;
-    let password = document.getElementById("password").value;
+// Your Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyCe3QzO5jkgYz5VM_cQX0Mu6gSNwA6ZWF0",
+  authDomain: "lohoption-65ac1.firebaseapp.com",
+  projectId: "lohoption-65ac1",
+  storageBucket: "lohoption-65ac1.firebasestorage.app",
+  messagingSenderId: "343245086859",
+  appId: "1:343245086859:web:c226f760cbc302949c348e"
+};
 
-    if(email==="" || password===""){
-        alert("Please enter your email and password.");
-    }else{
-        alert("Welcome to LohOption!");
-    }
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
 
-}function register(){
+// Login function
+window.login = function () {
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
 
-    let name = document.getElementById("name").value;
-    let email = document.getElementById("email").value;
-    let password = document.getElementById("password").value;
+  signInWithEmailAndPassword(auth, email, password)
+    .then(() => {
+      alert("Login successful!");
+      window.location.href = "dashboard.html";
+    })
+    .catch((error) => {
+      alert(error.message);
+    });
+};
 
-    if(name === "" || email === "" || password === ""){
-        alert("Please fill in all fields.");
-    }else{
-        alert("Account created successfully!");
-    }
+// Register function
+window.register = function () {
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
 
-}
+  createUserWithEmailAndPassword(auth, email, password)
+    .then(() => {
+      alert("Account created successfully!");
+      window.location.href = "login.html";
+    })
+    .catch((error) => {
+      alert(error.message);
+    });
+};
