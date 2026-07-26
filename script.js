@@ -49,3 +49,16 @@ window.register = function () {
       alert(error.message);
     });
 };
+// Logout function
+import { signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+window.logout = function () {
+  signOut(auth)
+    .then(() => {
+      alert("Logged out successfully!");
+      window.location.href = "login.html";
+    })
+    .catch((error) => {
+      alert(error.message);
+    });
+};
