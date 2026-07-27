@@ -3,7 +3,9 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
 import {
   getAuth,
   signInWithEmailAndPassword,
-  createUserWithEmailAndPassword
+  createUserWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 // Your Firebase configuration
@@ -20,7 +22,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
-// Login function
+// Login
 window.login = function () {
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
@@ -35,7 +37,7 @@ window.login = function () {
     });
 };
 
-// Register function
+// Register
 window.register = function () {
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
@@ -48,17 +50,18 @@ window.register = function () {
     .catch((error) => {
       alert(error.message);
     });
-};
-// Logout function
-import { signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+};// Display logged-in user's email on the dashboard
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    const welcome = document.getElementById("welcome");
+    const userEmail = document.getElementById("userEmail");
 
-window.logout = function () {
-  signOut(auth)
-    .then(() => {
-      alert("Logged out successfully!");
-      window.location.href = "login.html";
-    })
-    .catch((error) => {
-      alert(error.message);
-    });
-};
+    if (welcome) {
+      welcome.textContent = "Welcome, " + user.email;
+    }
+
+    if (userEmail) {
+      userEmail.textContent = "Email: " + user.email;
+    }
+  }
+});
