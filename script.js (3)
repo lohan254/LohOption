@@ -1,6 +1,12 @@
 // Firebase imports
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
+  getFirestore,
+  doc,
+  setDoc,
+  getDoc
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import {
   getAuth,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
@@ -21,6 +27,7 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+const db = getFirestore(app);
 
 // Login
 window.login = function () {
@@ -43,15 +50,23 @@ window.register = function () {
   const password = document.getElementById("password").value;
 
   createUserWithEmailAndPassword(auth, email, password)
-    .then(() => {
-      alert("Account created successfully!");
-      window.location.href = "login.html";
-    })
+   .then(async (userCredential) => {
+  const user = userCredential.user;
+
+  await setDoc(doc(db, "users", user.uid), {
+    email: user.email,
+    balance: 10000,
+    createdAt: new Date().toISOString()
+  });
+
+  alert("Account created successfully!");
+  window.location.href = "login.html";
+})
     .catch((error) => {
       alert(error.message);
     });
 };// Display logged-in user's email on the dashboard
-onAuthStateChanged(auth, (user) => {
+onAuthStateChanged(auth, async (user) => {
   if (user) {
     const welcome = document.getElementById("welcome");
     const userEmail = document.getElementById("userEmail");
@@ -61,7 +76,15 @@ onAuthStateChanged(auth, (user) => {
     }
 
     if (userEmail) {
-      userEmail.textContent = "Email: " + user.email;
+      const userDoc = await getDoc(doc(db, "users", user.uid));
+
+      if (userDoc.exists()) {
+        const data = userDoc.data();
+        userEmail.textContent =
+          "Email: " + data.email + " | Balance: $" + data.balance;
+      } else {
+        userEmail.textContent = "Email: " + user.email;
+      }
     }
   }
 });
