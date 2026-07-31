@@ -80,6 +80,11 @@ onAuthStateChanged(auth, async (user) => {
 
       if (userDoc.exists()) {
         const data = userDoc.data();
+const balance = document.getElementById("balance");
+
+if (balance) {
+  balance.textContent = "$" + data.balance.toFixed(2);
+}
         userEmail.textContent =
           "Email: " + data.email + " | Balance: $" + data.balance;
       } else {
