@@ -6,6 +6,7 @@ import {
   setDoc,
   getDoc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
 import {
   getAuth,
   signInWithEmailAndPassword,
@@ -14,7 +15,7 @@ import {
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-// Your Firebase configuration
+// Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyCe3QzO5jkgYz5VM_cQX0Mu6gSNwA6ZWF0",
   authDomain: "lohoption-65ac1.firebaseapp.com",
@@ -36,7 +37,6 @@ window.login = function () {
 
   signInWithEmailAndPassword(auth, email, password)
     .then(() => {
-      alert("Login successful!");
       window.location.href = "dashboard.html";
     })
     .catch((error) => {
@@ -50,52 +50,66 @@ window.register = function () {
   const password = document.getElementById("password").value;
 
   createUserWithEmailAndPassword(auth, email, password)
-   .then(async (userCredential) => {
-  const user = userCredential.user;
+    .then(async (userCredential) => {
 
-  await setDoc(doc(db, "users", user.uid), {
-    email: user.email,
-    balance: 10000,
-    createdAt: new Date().toISOString()
-  });
+      const user = userCredential.user;
 
-  alert("Account created successfully!");
-  window.location.href = "login.html";
-})
+      await setDoc(doc(db, "users", user.uid), {
+        email: user.email,
+        balance: 10000,
+        createdAt: new Date().toISOString()
+      });
+
+      alert("Account created successfully!");
+      window.location.href = "login.html";
+
+    })
     .catch((error) => {
       alert(error.message);
     });
-};// Display logged-in user's email on the dashboard
+};
+
+// Logout
+window.logout = function () {
+  signOut(auth).then(() => {
+    window.location.href = "login.html";
+  });
+};
+
+// Dashboard
 onAuthStateChanged(auth, async (user) => {
-  if (user) {
-    const welcome = document.getElementById("welcome");
-    const userEmail = document.getElementById("userEmail");
 
-    if (welcome) {
-      welcome.textContent = "Welcome, " + user.email;
-    }
+  if (!user) return;
 
-    if (userEmail) {
-      const userDoc = await getDoc(doc(db, "users", user.uid));
-
-if (userDoc.exists()) {
-  const data = userDoc.data();
-
+  const welcome = document.getElementById("welcome");
+  const userEmail = document.getElementById("userEmail");
   const balance = document.getElementById("balance");
 
-  if (balance) {
-    balance.textContent = "$" + Number(data.balance).toFixed(2);
+  if (welcome) {
+    welcome.textContent = "Welcome, " + user.email;
   }
 
-  console.log("Firestore data:", data);
-} else {
-  console.log("User document not found.");
-}
-        userEmail.textContent =
-          "Email: " + data.email + " | Balance: $" + data.balance;
-      } else {
-        userEmail.textContent = "Email: " + user.email;
-      }
+  const userRef = doc(db, "users", user.uid);
+  const userSnap = await getDoc(userRef);
+
+  if (userSnap.exists()) {
+
+    const data = userSnap.data();
+
+    if (userEmail) {
+      userEmail.textContent = "Email: " + data.email;
     }
+
+    if (balance) {
+      balance.textContent = "$" + Number(data.balance).toFixed(2);
+    }
+
+  } else {
+
+    if (userEmail) {
+      userEmail.textContent = "No Firestore account found.";
+    }
+
   }
+
 });
