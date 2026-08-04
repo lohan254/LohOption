@@ -78,12 +78,18 @@ onAuthStateChanged(auth, async (user) => {
     if (userEmail) {
       const userDoc = await getDoc(doc(db, "users", user.uid));
 
-      if (userDoc.exists()) {
-        const data = userDoc.data();
-const balance = document.getElementById("balance");
+if (userDoc.exists()) {
+  const data = userDoc.data();
 
-if (balance) {
-  balance.textContent = "$" + data.balance.toFixed(2);
+  const balance = document.getElementById("balance");
+
+  if (balance) {
+    balance.textContent = "$" + Number(data.balance).toFixed(2);
+  }
+
+  console.log("Firestore data:", data);
+} else {
+  console.log("User document not found.");
 }
         userEmail.textContent =
           "Email: " + data.email + " | Balance: $" + data.balance;
